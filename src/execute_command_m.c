@@ -35,14 +35,32 @@ static void	setup_redirects(t_input *input)
 
 static void	handle_exec_error(t_input *input, char *cmd_path)
 {
-	if (errno == ENOEXEC || errno == ENOENT)
+	char	*sh_path;
+	char	**sh_args;
+
+	if (errno == ENOEXEC)
+	{
+		sh_path = "/bin/sh";
+		sh_args = malloc(3 * sizeof(char *));
+		if (!sh_args)
+		{
+			free(cmd_path);
+			exit(1);
+		}
+		sh_args[0] = sh_path;
+		sh_args[1] = cmd_path;
+		sh_args[2] = NULL;
+		execve(sh_path, sh_args, input->envp);
+		ft_matrix_free(&sh_args);
+		free(cmd_path);
+		exit(126);
+	}
+	if (errno == ENOENT)
 	{
 		ft_putstr_fd("miniyo: ", 2);
 		ft_putstr_fd(input->command, 2);
 		ft_putstr_fd(": No such file or directory\n", 2);
 		free(cmd_path);
-		if (errno == ENOEXEC)
-			exit(2);
 		exit(127);
 	}
 	if (errno == EACCES)
