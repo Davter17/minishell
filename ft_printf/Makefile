@@ -1,32 +1,54 @@
-CC = cc
-CFLAGS = -Wall -Wextra -Werror
+# **************************************************************************** #
+#                                                                              #
+#                                                         :::      ::::::::    #
+#    Makefile                                           :+:      :+:    :+:    #
+#                                                     +:+ +:+         +:+      #
+#    By: mpico-bu <mpico-bu@student.42.fr>          +#+  +:+       +#+         #
+#                                                 +#+#+#+#+#+   +#+            #
+#    Created: 2025/01/20 15:51:55 by mpico-bu          #+#    #+#              #
+#    Updated: 2025/01/22 12:50:54 by mpico-bu         ###   ########.fr        #
+#                                                                              #
+# **************************************************************************** #
+
 NAME = libftprintf.a
-LIBRARY = ../libft/libft.a
-SRC = ft_printf.c ft_printf_flag_type.c ft_printf_other_flags.c
-OBJS = $(SRC:.c=.o)
-RM	= rm -rf
 
-all: $(LIBRARY) $(NAME)
+SRCS_DIR = .
+OBJ_DIR = .
+INC_DIR = .
 
-$(LIBRARY):
-	make -C ../libft
+LIBFT_DIR = ../libft
+LIBFT_INC = $(LIBFT_DIR)
+LIBFT_LIB = $(LIBFT_DIR)/libft.a
 
-%.o: %.c libftprintf.h
-	$(CC) $(CFLAGS) -I../libft -c $< -o $@
+SRCS = $(wildcard $(SRCS_DIR)/*.c)
 
-$(NAME): $(OBJS) $(LIBRARY)
-	ar -rc $@ $(OBJS)
-	ar -x $(LIBRARY) # Extrae los objetos de libft.a
-	ar -rc $@ *.o # Añade los objetos a libftprintf.a
-	ar -s $@ # Indexa la librería
-	rm -f *.o
+OBJS = $(SRCS:.c=.o)
+
+CC = cc
+CFLAGS = -Wall -Wextra -Werror -I$(INC_DIR) -I$(LIBFT_INC)
+AR = /usr/bin/ar rc
+
+all: $(LIBFT_LIB) $(NAME)
+
+%.o: %.c
+	@$(CC) $(CFLAGS) -c $< -o $@
+
+$(LIBFT_LIB): $(LIBFT_DIR)/Makefile
+	@$(MAKE) --no-print-directory -C $(LIBFT_DIR)
+
+$(NAME): $(OBJS)
+	@printf "  \033[32m✓\033[0m Compiled %d files → $(NAME)\n" $(words $(OBJS))
+	@/usr/bin/ar rc $(NAME) $(OBJS)
+	@/usr/bin/ranlib $(NAME)
 
 clean:
-	$(RM) $(OBJS)
+	@printf "  \033[31m✗\033[0m  Removing object files...\n"
+	@rm -f $(OBJS)
 
 fclean: clean
-	$(RM) $(NAME)
+	@printf "  \033[31m✗\033[0m  Removing $(NAME)...\n"
+	@rm -f $(NAME)
 
 re: fclean all
 
-.PHONY: all re clean fclean
+.PHONY: all clean fclean re

@@ -1,0 +1,5 @@
+.obj/
+minishell
+.deps/
+libft/libft.a
+ft_printf/libftprintf.a
